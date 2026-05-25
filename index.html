@@ -742,8 +742,7 @@ function analisis(t){
 // RENDER
 // ══════════════════════════════════════
 function render(){
-try{
-  const t=totals();
+const t=totals();
   const now=new Date();
   const mesNombre=now.toLocaleString('es-PE',{month:'long',year:'numeric'});
   document.getElementById('h-mes').textContent=mesNombre;
@@ -917,7 +916,6 @@ try{
   }).join('');
 
   renderGastos();
-}catch(e){console.error("RENDER ERROR:",e,e.stack);}
 }
 
 // ══════════════════════════════════════
@@ -1147,7 +1145,10 @@ function exportarResumen(){
 function showConfirm(icon,title,msg,onOk){
   document.getElementById('confirm-icon').textContent=icon;
   document.getElementById('confirm-title').textContent=title;
-  document.g
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-ok-btn').onclick=function(){closeConfirm();onOk();};
+  document.getElementById('confirm-overlay').classList.add('open');
+}
 function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('open');}
 function setTab(tab){
   document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
