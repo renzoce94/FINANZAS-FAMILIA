@@ -612,7 +612,7 @@ function registrarActividad(msg){
 }
 
 // Polling cada 10 segundos para ver cambios del otro celular
-function startPolling(){
+async function startPolling(){
   if(modoLocal) return;
   setInterval(async()=>{
     try{
@@ -664,7 +664,7 @@ function usarLocal(){
   iniciarApp();
 }
 
-function iniciarApp(){
+async function iniciarApp(){
   document.getElementById('setup-screen').style.display='none';
   document.getElementById('main-header').style.display='block';
   document.getElementById('main-content').style.display='block';
@@ -1125,7 +1125,7 @@ async function confirmRestore(){
     await guardarTodo(); render();
   });
 }
-function confirmDelete(tipo,id,nombre){
+async function confirmDelete(tipo,id,nombre){
   showConfirm('🗑️','Eliminar '+nombre,'¿Estás seguro? Puedes restaurar datos originales desde Config.',async()=>{
     if(tipo==='ingreso') await delIngreso(id);
     else if(tipo==='deuda') await delDeuda(id);
