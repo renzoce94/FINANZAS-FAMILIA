@@ -700,13 +700,10 @@ async function conectarFirebaseConfig(){
     localStorage.removeItem('cc_modo_local');
     await cargarDatos();
     startPolling();
-    alert('✅ Conectado a Firebase. Los datos se sincronizan con Carolina.');
+    alert('Conectado correctamente. Datos sincronizados con Firebase.');
   }catch(e){
     setSyncStatus('offline');
-    alert('❌ No se pudo conectar. Verifica la URL.
-
-Asegúrate que en Firebase → Reglas tengas:
-{"rules":{".read":true,".write":true}}');
+    alert('No se pudo conectar. Verifica la URL y las reglas de Firebase.');
   }
 }
 
