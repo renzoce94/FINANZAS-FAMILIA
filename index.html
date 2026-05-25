@@ -664,7 +664,7 @@ function usarLocal(){
   iniciarApp();
 }
 
-async function iniciarApp(){
+function iniciarApp(){
   document.getElementById('setup-screen').style.display='none';
   document.getElementById('main-header').style.display='block';
   document.getElementById('main-content').style.display='block';
@@ -745,6 +745,7 @@ function analisis(t){
 // RENDER
 // ══════════════════════════════════════
 function render(){
+try{
   const t=totals();
   const now=new Date();
   const mesNombre=now.toLocaleString('es-PE',{month:'long',year:'numeric'});
@@ -874,7 +875,7 @@ function render(){
         </div>
         <div style="display:flex;gap:6px;margin-top:10px;">
           <button onclick="event.stopPropagation();openEdit('deuda','${d.id}')" style="flex:1;background:var(--border);border:1px solid var(--border2);color:var(--muted);border-radius:8px;padding:7px;font-size:10px;cursor:pointer;font-family:inherit;">✏️ Editar</button>
-          <button onclick="event.stopPropagation();confirmDelete('deuda','${d.id}','${d.nombre.replace(/'/g,"\\'")}');" style="flex:1;background:none;border:1px solid #ef444433;color:var(--red);border-radius:8px;padding:7px;font-size:10px;cursor:pointer;font-family:inherit;">🗑 Eliminar</button>
+          <button onclick="event.stopPropagation();confirmDelete('deuda','${d.id}','item');" style="flex:1;background:none;border:1px solid #ef444433;color:var(--red);border-radius:8px;padding:7px;font-size:10px;cursor:pointer;font-family:inherit;">🗑 Eliminar</button>
         </div>
       </div>
     </div>`;
@@ -892,7 +893,7 @@ function render(){
       </div>
       <span class="bebas" style="font-size:17px;color:var(--green);">${fmt(i.monto)}</span>
       <button class="edit-btn" onclick="openEdit('ingreso','${i.id}')">✏️</button>
-      <button class="del-btn" onclick="confirmDelete('ingreso','${i.id}','${i.nombre.replace(/'/g,"\\'")}')">✕</button>
+      <button class="del-btn" onclick="confirmDelete('ingreso','${i.id}','item')">✕</button>
     </div>`).join('');
 
   // Fijos
@@ -914,11 +915,12 @@ function render(){
       </div>
       <button onclick="togglePagado('${f.id}')" style="background:${f.pagado?'#22c55e22':'var(--border)'};border:1px solid ${f.pagado?'var(--green)':'var(--border2)'};color:${f.pagado?'var(--green)':'var(--dim)'};border-radius:7px;padding:5px 7px;font-size:10px;cursor:pointer;flex-shrink:0;">${f.pagado?'✓':'Pagar'}</button>
       <button class="edit-btn" onclick="openEdit('fijo','${f.id}')" style="margin-left:3px;">✏️</button>
-      <button class="del-btn" onclick="confirmDelete('fijo','${f.id}','${f.nombre.replace(/'/g,"\\'")}')">✕</button>
+      <button class="del-btn" onclick="confirmDelete('fijo','${f.id}','item')">✕</button>
     </div>`;
   }).join('');
 
   renderGastos();
+}catch(e){console.error("RENDER ERROR:",e,e.stack);}
 }
 
 // ══════════════════════════════════════
