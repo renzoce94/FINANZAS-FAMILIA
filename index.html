@@ -590,6 +590,7 @@ function setSyncStatus(s) {
 }
 
 function totals() {
+  if(!estado.gastos) estado.gastos = {};
   var gastosHoy = estado.gastos[hoy()] ? Object.values(estado.gastos[hoy()]) : [];
   var ing = estado.ingresos.reduce(function(s,i){ return s + Number(i.monto); }, 0);
   var cuotas = estado.deudas.reduce(function(s,d){ return s + Number(d.cuota); }, 0);
@@ -781,6 +782,7 @@ function render() {
 }
 
 function renderGastos() {
+  if(!estado.gastos) estado.gastos = {};
   var gastosHoy = estado.gastos[hoy()] ? Object.values(estado.gastos[hoy()]) : [];
   var empty = gastosHoy.length === 0;
   var el;
