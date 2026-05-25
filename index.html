@@ -5,11 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Familia Carbajal Capurro · Finanzas</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
-window._fbSDK = { initializeApp, getDatabase, ref, set, get, onValue };
-</script>
+
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -480,17 +476,17 @@ input:focus,select:focus{border-color:var(--indigo)!important;}
 <script>
 var FREQ_LABELS = {1:'Mensual',2:'Bimestral',3:'Trimestral',6:'Semestral',12:'Anual'};
 var CAT_COLORS = {alimentacion:'#ec4899',transporte:'#f59e0b',salud:'#22c55e',educacion:'#3b82f6',ocio:'#f97316',ropa:'#a78bfa',vivienda:'#8b5cf6',servicios:'#06b6d4',otros:'#6b7280',sueldo:'#22c55e',alquiler:'#3b82f6',variable:'#f59e0b',negocio:'#a78bfa'};
-var CAT_ICONS = {alimentacion:'🍽️',transporte:'🚗',salud:'💊',educacion:'📚',ocio:'🎉',ropa:'👕',vivienda:'🏠',servicios:'📡',otros:'📦',sueldo:'💼',alquiler:'🏠',variable:'📈',negocio:'🏪'};
+var CAT_ICONS = {alimentacion:'[comida]',transporte:'[auto]',salud:'[salud]',educacion:'[edu]',ocio:'[ocio]',ropa:'[ropa]',vivienda:'[casa]',servicios:'[wifi]',otros:'[caja]',sueldo:'[trabajo]',alquiler:'[casa]',variable:'[grafica]',negocio:'[tienda]'};
 
 var DATOS_BASE = {
   ingresos:[
-    {id:'i1',nombre:'Sueldo neto Primax',monto:4500,dia:1,cat:'sueldo',icono:'💼',editable:true},
-    {id:'i2',nombre:'Incentivo variable',monto:800,dia:1,cat:'variable',icono:'📈',editable:true},
-    {id:'i3',nombre:'Alquiler depto + servicios',monto:2262,dia:1,cat:'alquiler',icono:'🏠',editable:false},
-    {id:'i4',nombre:'Inquilino Luis',monto:550,dia:6,cat:'alquiler',icono:'🔑',editable:false},
-    {id:'i5',nombre:'Inquilina Angela',monto:470,dia:10,cat:'alquiler',icono:'🔑',editable:false},
-    {id:'i6',nombre:'Inquilino Carlos',monto:460,dia:16,cat:'alquiler',icono:'🔑',editable:false},
-    {id:'i7',nombre:'PIG variable',monto:2000,dia:null,cat:'variable',icono:'💰',editable:true}
+    {id:'i1',nombre:'Sueldo neto Primax',monto:4500,dia:1,cat:'sueldo',icono:'[trabajo]',editable:true},
+    {id:'i2',nombre:'Incentivo variable',monto:800,dia:1,cat:'variable',icono:'[grafica]',editable:true},
+    {id:'i3',nombre:'Alquiler depto + servicios',monto:2262,dia:1,cat:'alquiler',icono:'[casa]',editable:false},
+    {id:'i4',nombre:'Inquilino Luis',monto:550,dia:6,cat:'alquiler',icono:'[llave]',editable:false},
+    {id:'i5',nombre:'Inquilina Angela',monto:470,dia:10,cat:'alquiler',icono:'[llave]',editable:false},
+    {id:'i6',nombre:'Inquilino Carlos',monto:460,dia:16,cat:'alquiler',icono:'[llave]',editable:false},
+    {id:'i7',nombre:'PIG variable',monto:2000,dia:null,cat:'variable',icono:'[dinero]',editable:true}
   ],
   deudas:[
     {id:'d1',nombre:'TC BCP Traslado',saldo:31744,cuota:1832,dia:2,tea:87.5,prioridad:1,color:'#ef4444',termina:'Dic 2030',cuotasPend:55},
@@ -498,7 +494,7 @@ var DATOS_BASE = {
     {id:'d3',nombre:'TC BCP Revolvente',saldo:777,cuota:64,dia:2,tea:87.5,prioridad:1,color:'#ef4444',termina:'Variable',cuotasPend:null},
     {id:'d4',nombre:'Credito Efectivo BCP',saldo:25827,cuota:1000,dia:2,tea:14.9,prioridad:3,color:'#f59e0b',termina:'2028',cuotasPend:29},
     {id:'d5',nombre:'Vehiculo MAF',saldo:36509,cuota:1877,dia:15,tea:19.99,prioridad:3,color:'#f59e0b',termina:'Abr 2028',cuotasPend:23},
-    {id:'d6',nombre:'Credito PIG',saldo:null,cuota:911,dia:6,tea:null,prioridad:3,color:'#a78bfa',termina:'—',cuotasPend:null},
+    {id:'d6',nombre:'Credito PIG',saldo:null,cuota:911,dia:6,tea:null,prioridad:3,color:'#a78bfa',termina:'-',cuotasPend:null},
     {id:'d7',nombre:'Huawei Mercado Pago',saldo:3399,cuota:283,dia:11,tea:0,prioridad:2,color:'#06b6d4',termina:'May 2027',cuotasPend:11}
   ],
   fijos:[
@@ -545,22 +541,6 @@ function cargarLocal() {
   if (saved && saved.ingresos && saved.ingresos.length > 0) {
     estado = saved;
   }
-}
-
-var _fbApp = null;
-var _fbDB = null;
-
-function initFirebase(url) {
-  try {
-    var projectId = url.replace('https://','').replace('-default-rtdb.firebaseio.com','').replace('.firebaseio.com','');
-    var config = { databaseURL: url, projectId: projectId, appId: projectId };
-    if (window._fbSDK) {
-      _fbApp = window._fbSDK.initializeApp(config, 'carbajal-'+Date.now());
-      _fbDB = window._fbSDK.getDatabase(_fbApp);
-      return true;
-    }
-    return false;
-  } catch(e) { console.log('FB init error:', e); return false; }
 }
 
 async function guardar() {
@@ -651,7 +631,7 @@ function render() {
   if(fg){ fg.setAttribute('stroke',rc); fg.setAttribute('stroke-dashoffset', C*(1-Math.min(t.ratio,100)/100)); }
   var dt = document.getElementById('donut-txt');
   if(dt){ dt.textContent = t.ratio+'%'; dt.setAttribute('fill',rc); }
-  el = document.getElementById('salud-label'); if(el) el.innerHTML = t.ratio>50?'🔴 Critico — no califica hipoteca':t.ratio>30?'🟡 Sobre limite bancario (30%)':'🟢 Saludable — puede pedir hipoteca';
+  el = document.getElementById('salud-label'); if(el) el.innerHTML = t.ratio>50?'[rojo] Critico - no califica hipoteca':t.ratio>30?'[amarillo] Sobre limite bancario (30%)':'[verde] Saludable - puede pedir hipoteca';
   el = document.getElementById('salud-info'); if(el) el.innerHTML = 'Cuotas: '+fmt(t.cuotas)+' / Ingresos: '+fmt(t.ing)+'<br>Saldo total deudas: '+fmt(t.saldo);
 
   var ahorradoUSD = estado.ahorrado || 0;
@@ -667,7 +647,7 @@ function render() {
   var mesesFalta = ahorroMes > 0 ? Math.ceil(faltaUSD / ahorroMes) : 999;
   var analisisTxt = '';
   if(t.ratio > 50){ analisisTxt = 'Ratio '+t.ratio+'% supera el limite del 30%. Banco no aprueba hipoteca aun. Prioridad: liquidar TC BCP (87.5% TEA). Ahorrando '+fmt(ahorroMes)+'/mes, enganche en '+(mesesFalta===999?'tiempo indefinido':mesesFalta+' meses')+'.'; }
-  else if(t.ratio > 30){ analisisTxt = 'Ratio '+t.ratio+'% — cerca del limite. Con codeudor de S/ 9,000-12,000 puedes calificar. Enganche en ~'+mesesFalta+' meses.'; }
+  else if(t.ratio > 30){ analisisTxt = 'Ratio '+t.ratio+'% - cerca del limite. Con codeudor de S/ 9,000-12,000 puedes calificar. Enganche en ~'+mesesFalta+' meses.'; }
   else { analisisTxt = 'Ratio '+t.ratio+'% dentro del limite. Puedes iniciar tramite MiVivienda. Enganche en ~'+mesesFalta+' meses.'; }
   el = document.getElementById('obj-analisis'); if(el) el.textContent = analisisTxt;
 
@@ -734,7 +714,7 @@ function render() {
       var badge = d.prioridad===1 ? '<span class="badge" style="background:#ef444422;color:#ef4444;">ATACAR</span>' :
                   d.prioridad===2 ? '<span class="badge" style="background:#f9731622;color:#f97316;">MINIMO</span>' :
                   '<span class="badge" style="background:#22c55e22;color:#22c55e;">MINIMO</span>';
-      var alerta = d.tea>50 ? 'URGENTE: '+d.tea+'% TEA' : d.tea===0 ? '0% TEA — sin interes' : d.tea ? d.tea+'% TEA' : 'Cuota fija';
+      var alerta = d.tea>50 ? 'URGENTE: '+d.tea+'% TEA' : d.tea===0 ? '0% TEA - sin interes' : d.tea ? d.tea+'% TEA' : 'Cuota fija';
       var progHtml = d.cuotasPend ? '<div class="prog-track"><div class="prog-fill" style="width:'+pPct+'%;background:'+d.color+';"></div></div><div style="display:flex;justify-content:space-between;margin-top:3px;"><span style="font-size:9px;color:var(--dim);">Termina: '+d.termina+'</span><span style="font-size:9px;color:var(--dim);">'+d.cuotasPend+' cuotas</span></div>' : '';
       var detailHtml = isOpen ? '<div class="detail open" onclick="event.stopPropagation()">'+
         '<div class="mono" style="margin-bottom:9px;">SIMULAR PAGO EXTRA</div>'+
@@ -752,7 +732,7 @@ function render() {
         '<div style="flex:1;"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;"><div style="width:7px;height:7px;border-radius:50%;background:'+d.color+';flex-shrink:0;"></div><span style="font-size:13px;font-weight:500;">'+d.nombre+'</span>'+badge+'</div>'+
         '<div style="font-size:10px;color:var(--dim);margin-left:13px;">'+alerta+'</div></div>'+
         '<div style="text-align:right;margin-left:10px;"><div class="bebas" style="font-size:17px;color:'+d.color+';">'+fmt(d.cuota)+'<span style="font-size:10px;color:var(--dim);">/mes</span></div>'+
-        '<div style="font-size:9px;color:var(--dim);">'+(d.saldo?fmt(d.saldo):'—')+'</div></div></div>'+
+        '<div style="font-size:9px;color:var(--dim);">'+(d.saldo?fmt(d.saldo):'-')+'</div></div></div>'+
         progHtml + detailHtml + '</div>';
     }).join('');
   }
@@ -763,12 +743,12 @@ function render() {
   if(el){
     el.innerHTML = estado.ingresos.map(function(i){
       return '<div class="list-item">'+
-        '<div class="item-icon" style="background:'+(CAT_COLORS[i.cat]||'#22c55e')+'22;">'+(i.icono||'💵')+'</div>'+
+        '<div class="item-icon" style="background:'+(CAT_COLORS[i.cat]||'#22c55e')+'22;">'+(i.icono||'[billete]')+'</div>'+
         '<div style="flex:1;"><div style="font-size:13px;">'+i.nombre+(i.editable?'<span style="font-size:8px;background:#818cf811;color:var(--indigo);border:1px solid #818cf833;border-radius:8px;padding:1px 5px;margin-left:5px;">VAR</span>':'')+'</div>'+
-        '<div style="font-size:10px;color:var(--dim);">'+(i.dia?'Dia '+i.dia:'Variable')+' · '+i.cat+'</div></div>'+
+        '<div style="font-size:10px;color:var(--dim);">'+(i.dia?'Dia '+i.dia:'Variable')+' . '+i.cat+'</div></div>'+
         '<span class="bebas" style="font-size:17px;color:var(--green);">'+fmt(i.monto)+'</span>'+
-        '<button class="edit-btn" onclick="openEditItem(\'ingreso\',\''+i.id+'\')">✏️</button>'+
-        '<button class="del-btn" onclick="confirmAct(\'Eliminar '+i.nombre+'?\', function(){ delIngreso(\''+i.id+'\'); })">✕</button>'+
+        '<button class="edit-btn" onclick="openEditItem(\'ingreso\',\''+i.id+'\')">[editar]</button>'+
+        '<button class="del-btn" onclick="confirmAct(\'Eliminar '+i.nombre+'?\', function(){ delIngreso(\''+i.id+'\'); })">x</button>'+
         '</div>';
     }).join('');
   }
@@ -783,13 +763,13 @@ function render() {
       var freq = f.freq||1;
       var freqBadge = freq>1 ? '<span style="font-size:8px;background:#818cf811;color:var(--indigo);border:1px solid #818cf833;border-radius:8px;padding:1px 5px;margin-left:4px;">'+(FREQ_LABELS[freq]||'c/'+freq+' m')+'</span>' : '';
       return '<div class="list-item" style="opacity:'+(f.pagado?'0.5':'1')+';">'+
-        '<div class="item-icon" style="background:'+(f.pagado?'#22c55e22':(CAT_COLORS[f.cat]||'#6b7280')+'22')+'">'+(f.pagado?'✅':(CAT_ICONS[f.cat]||'📦'))+'</div>'+
+        '<div class="item-icon" style="background:'+(f.pagado?'#22c55e22':(CAT_COLORS[f.cat]||'#6b7280')+'22')+'">'+(f.pagado?'[ok]':(CAT_ICONS[f.cat]||'[caja]'))+'</div>'+
         '<div style="flex:1;"><div style="font-size:13px;text-decoration:'+(f.pagado?'line-through':'none')+';color:'+(f.pagado?'var(--dim)':'var(--text)')+';">'+f.nombre+freqBadge+'</div>'+
-        '<div style="font-size:10px;color:var(--dim);">'+(f.dia>0?'Dia '+f.dia:'Variable')+' · '+f.cat+(freq>1?' · ~'+fmt(f.monto/freq)+'/mes':'')+(f.pagado?' · PAGADO':'')+'</div></div>'+
+        '<div style="font-size:10px;color:var(--dim);">'+(f.dia>0?'Dia '+f.dia:'Variable')+' . '+f.cat+(freq>1?' . ~'+fmt(f.monto/freq)+'/mes':'')+(f.pagado?' . PAGADO':'')+'</div></div>'+
         '<div style="text-align:right;margin:0 4px;"><div class="bebas" style="font-size:15px;color:'+(f.pagado?'var(--dim)':'var(--yellow)')+';">'+fmt(f.monto)+'</div>'+(freq>1?'<div style="font-size:9px;color:var(--dim);">c/'+freq+' m</div>':'')+'</div>'+
-        '<button onclick="togglePagado(\''+f.id+'\')" style="background:'+(f.pagado?'#22c55e22':'var(--border)')+';border:1px solid '+(f.pagado?'var(--green)':'var(--border2)')+';color:'+(f.pagado?'var(--green)':'var(--dim)')+';border-radius:7px;padding:5px 7px;font-size:10px;cursor:pointer;flex-shrink:0;">'+(f.pagado?'✓':'Pagar')+'</button>'+
-        '<button class="edit-btn" onclick="openEditItem(\'fijo\',\''+f.id+'\')" style="margin-left:3px;">✏️</button>'+
-        '<button class="del-btn" onclick="confirmAct(\'Eliminar '+f.nombre+'?\', function(){ delFijo(\''+f.id+'\'); })">✕</button>'+
+        '<button onclick="togglePagado(\''+f.id+'\')" style="background:'+(f.pagado?'#22c55e22':'var(--border)')+';border:1px solid '+(f.pagado?'var(--green)':'var(--border2)')+';color:'+(f.pagado?'var(--green)':'var(--dim)')+';border-radius:7px;padding:5px 7px;font-size:10px;cursor:pointer;flex-shrink:0;">'+(f.pagado?'v':'Pagar')+'</button>'+
+        '<button class="edit-btn" onclick="openEditItem(\'fijo\',\''+f.id+'\')" style="margin-left:3px;">[editar]</button>'+
+        '<button class="del-btn" onclick="confirmAct(\'Eliminar '+f.nombre+'?\', function(){ delFijo(\''+f.id+'\'); })">x</button>'+
         '</div>';
     }).join('');
   }
@@ -813,7 +793,7 @@ function renderGastos() {
   el = document.getElementById('cat-bars');
   if(el){
     el.innerHTML = Object.entries(cm).sort(function(a,b){ return b[1]-a[1]; }).map(function(entry){
-      return '<div class="cat-bar-row"><div class="cat-bar-label"><span style="font-size:11px;color:var(--muted);">'+(CAT_ICONS[entry[0]]||'📦')+' '+entry[0]+'</span><span style="font-size:11px;color:'+(CAT_COLORS[entry[0]]||'#6b7280')+';">'+fmt(entry[1])+'</span></div>'+
+      return '<div class="cat-bar-row"><div class="cat-bar-label"><span style="font-size:11px;color:var(--muted);">'+(CAT_ICONS[entry[0]]||'[caja]')+' '+entry[0]+'</span><span style="font-size:11px;color:'+(CAT_COLORS[entry[0]]||'#6b7280')+';">'+fmt(entry[1])+'</span></div>'+
         '<div class="cat-track"><div class="cat-fill" style="width:'+Math.round(entry[1]/total*100)+'%;background:'+(CAT_COLORS[entry[0]]||'#6b7280')+';"></div></div></div>';
     }).join('');
   }
@@ -821,10 +801,10 @@ function renderGastos() {
   if(el){
     el.innerHTML = gastosHoy.slice().reverse().map(function(g){
       return '<div class="list-item anim">'+
-        '<div class="item-icon" style="background:'+(CAT_COLORS[g.cat]||'#6b7280')+'22;">'+(CAT_ICONS[g.cat]||'📦')+'</div>'+
-        '<div style="flex:1;"><div style="font-size:13px;">'+g.desc+'</div><div style="font-size:10px;color:var(--dim);">'+g.cat+(g.quien?' · '+g.quien:'')+' · '+(g.hora||'')+'</div></div>'+
+        '<div class="item-icon" style="background:'+(CAT_COLORS[g.cat]||'#6b7280')+'22;">'+(CAT_ICONS[g.cat]||'[caja]')+'</div>'+
+        '<div style="flex:1;"><div style="font-size:13px;">'+g.desc+'</div><div style="font-size:10px;color:var(--dim);">'+g.cat+(g.quien?' . '+g.quien:'')+' . '+(g.hora||'')+'</div></div>'+
         '<span style="font-size:13px;color:'+(CAT_COLORS[g.cat]||'#6b7280')+';font-weight:600;">'+fmt(g.monto)+'</span>'+
-        '<button class="del-btn" onclick="delGasto(\''+g.id+'\')">✕</button>'+
+        '<button class="del-btn" onclick="delGasto(\''+g.id+'\')">x</button>'+
         '</div>';
     }).join('');
   }
@@ -844,7 +824,7 @@ function renderHistorial() {
   if(el){
     var meses2 = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
     var now2 = new Date();
-    el.textContent = 'Mes actual: '+meses2[now2.getMonth()]+' '+now2.getFullYear()+' — Balance: '+fmt(t.bal)+' — Ratio deuda: '+t.ratio+'%';
+    el.textContent = 'Mes actual: '+meses2[now2.getMonth()]+' '+now2.getFullYear()+' - Balance: '+fmt(t.bal)+' - Ratio deuda: '+t.ratio+'%';
   }
 
   var cs = document.getElementById('cierre-ahorro-sugerido');
@@ -1000,7 +980,7 @@ async function addIngreso() {
   var dia = Number(document.getElementById('ni-dia').value) || null;
   var editable = document.getElementById('ni-editable').value === '1';
   if(!nombre || !monto) return;
-  estado.ingresos.push({id:uid(), nombre:nombre, monto:monto, dia:dia, cat:cat, icono:CAT_ICONS[cat]||'💵', editable:editable});
+  estado.ingresos.push({id:uid(), nombre:nombre, monto:monto, dia:dia, cat:cat, icono:CAT_ICONS[cat]||'[billete]', editable:editable});
   await guardar();
   closeModal('modal-add-ingreso');
   document.getElementById('ni-nombre').value = '';
@@ -1025,7 +1005,7 @@ async function addDeuda() {
   if(!nombre || !cuota) return;
   var prioridad = tea > 30 ? 1 : tea > 0 ? 2 : 3;
   var color = tea > 30 ? '#ef4444' : tea > 0 ? '#f59e0b' : '#06b6d4';
-  estado.deudas.push({id:uid(), nombre:nombre, saldo:saldo, cuota:cuota, tea:tea, dia:dia, cuotasPend:cuotasPend, prioridad:prioridad, color:color, termina:'—'});
+  estado.deudas.push({id:uid(), nombre:nombre, saldo:saldo, cuota:cuota, tea:tea, dia:dia, cuotasPend:cuotasPend, prioridad:prioridad, color:color, termina:'-'});
   await guardar();
   closeModal('modal-add-deuda');
   ['nd-nombre','nd-saldo','nd-cuota','nd-tea','nd-dia','nd-cuotaspend'].forEach(function(id){ document.getElementById(id).value = ''; });
@@ -1078,7 +1058,7 @@ function openEditItem(tipo, id) {
   else if(tipo === 'fijo') item = estado.fijos.find(function(f){ return f.id === id; });
   if(!item) return;
   editTarget = {tipo:tipo, id:id};
-  document.getElementById('edit-title').innerHTML = 'Editar — '+item.nombre+'<button class="close-btn" onclick="closeModal(\'modal-edit\')">✕</button>';
+  document.getElementById('edit-title').innerHTML = 'Editar - '+item.nombre+'<button class="close-btn" onclick="closeModal(\'modal-edit\')">x</button>';
   document.getElementById('edit-subtitle').textContent = 'Monto actual: '+fmt(item.monto);
   document.getElementById('edit-monto').value = item.monto;
   document.getElementById('edit-nombre-field').value = item.nombre;
@@ -1089,8 +1069,8 @@ function openEditDeuda(id) {
   var d = estado.deudas.find(function(d){ return d.id === id; });
   if(!d) return;
   editTarget = {tipo:'deuda', id:id};
-  document.getElementById('edit-title').innerHTML = 'Editar — '+d.nombre+'<button class="close-btn" onclick="closeModal(\'modal-edit\')">✕</button>';
-  document.getElementById('edit-subtitle').textContent = 'Cuota: '+fmt(d.cuota)+' | Saldo: '+(d.saldo?fmt(d.saldo):'—');
+  document.getElementById('edit-title').innerHTML = 'Editar - '+d.nombre+'<button class="close-btn" onclick="closeModal(\'modal-edit\')">x</button>';
+  document.getElementById('edit-subtitle').textContent = 'Cuota: '+fmt(d.cuota)+' | Saldo: '+(d.saldo?fmt(d.saldo):'-');
   document.getElementById('edit-monto').value = d.cuota;
   document.getElementById('edit-nombre-field').value = d.nombre;
   openModal('modal-edit');
@@ -1166,12 +1146,17 @@ Verifica en Firebase:
   }
 }
 
-function restaurarDatos() {
+async function restaurarDatos() {
   estado.ingresos = clonar(DATOS_BASE.ingresos);
   estado.deudas = clonar(DATOS_BASE.deudas);
   estado.fijos = clonar(DATOS_BASE.fijos);
-  guardar();
+  estado.gastos = {};
+  estado.ahorrado = 0;
+  estado.historial = [];
+  lsSet('cc_estado', estado);
+  await guardar();
   render();
+  alert('Datos restaurados correctamente.');
 }
 
 function exportarResumen() {
@@ -1250,10 +1235,24 @@ function startPolling() {
 cargarLocal();
 if(FB_URL){
   cargarFirebase().then(function(){
+    // If Firebase returned no data, push local data up
+    if(!estado.ingresos || estado.ingresos.length === 0){
+      estado.ingresos = clonar(DATOS_BASE.ingresos);
+      estado.deudas = clonar(DATOS_BASE.deudas);
+      estado.fijos = clonar(DATOS_BASE.fijos);
+      guardar();
+    }
     render();
     startPolling();
   });
 } else {
+  // No Firebase - use local data, make sure defaults are loaded
+  if(!estado.ingresos || estado.ingresos.length === 0){
+    estado.ingresos = clonar(DATOS_BASE.ingresos);
+    estado.deudas = clonar(DATOS_BASE.deudas);
+    estado.fijos = clonar(DATOS_BASE.fijos);
+    lsSet('cc_estado', estado);
+  }
   render();
 }
 </script>
