@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Familia Carbajal Capurro · Finanzas</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getDatabase, ref, set, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-database.js";
+window._fbSDK = { initializeApp, getDatabase, ref, set, get, onValue };
+</script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -542,12 +547,33 @@ function cargarLocal() {
   }
 }
 
+var _fbApp = null;
+var _fbDB = null;
+
+function initFirebase(url) {
+  try {
+    var projectId = url.replace('https://','').replace('-default-rtdb.firebaseio.com','').replace('.firebaseio.com','');
+    var config = { databaseURL: url, projectId: projectId, appId: projectId };
+    if (window._fbSDK) {
+      _fbApp = window._fbSDK.initializeApp(config, 'carbajal-'+Date.now());
+      _fbDB = window._fbSDK.getDatabase(_fbApp);
+      return true;
+    }
+    return false;
+  } catch(e) { console.log('FB init error:', e); return false; }
+}
+
 async function guardar() {
   lsSet('cc_estado', estado);
   if (!FB_URL) return;
   try {
-    var r = await fetch(FB_URL + '/estado.json', {method:'PUT', body:JSON.stringify(estado)});
-    setSyncStatus('online');
+    var r = await fetch(FB_URL + '/estado.json', {
+      method:'PUT',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(estado)
+    });
+    if(r.ok) setSyncStatus('online');
+    else setSyncStatus('offline');
   } catch(e) { setSyncStatus('offline'); }
 }
 
@@ -556,6 +582,7 @@ async function cargarFirebase() {
   try {
     setSyncStatus('syncing');
     var r = await fetch(FB_URL + '/estado.json');
+    if(!r.ok) throw new Error('HTTP '+r.status);
     var data = await r.json();
     if (data && data.ingresos && data.ingresos.length > 0) {
       estado = data;
@@ -564,7 +591,10 @@ async function cargarFirebase() {
       await guardar();
     }
     setSyncStatus('online');
-  } catch(e) { setSyncStatus('offline'); }
+  } catch(e) {
+    console.log('Firebase error:', e);
+    setSyncStatus('offline');
+  }
 }
 
 function setSyncStatus(s) {
@@ -1116,16 +1146,23 @@ async function conectarFirebase() {
   if(url.endsWith('/')) url = url.slice(0,-1);
   setSyncStatus('syncing');
   try {
-    var r = await fetch(url + '/.json');
-    if(!r.ok) throw new Error('error');
+    var testUrl = url + '/.json';
+    var r = await fetch(testUrl, {mode:'cors'});
+    if(!r.ok) throw new Error('HTTP ' + r.status);
     FB_URL = url;
     localStorage.setItem('cc_fb_url', url);
     await cargarFirebase();
     render();
-    alert('Conectado. Datos sincronizados con Firebase.');
+    alert('Conectado correctamente a Firebase.');
   } catch(e) {
     setSyncStatus('offline');
-    alert('No se pudo conectar. Verifica la URL de Firebase.');
+    console.log('Connect error:', e);
+    alert('No se pudo conectar.
+
+Verifica en Firebase:
+1. Realtime Database esta creado
+2. Reglas: {rules:{.read:true,.write:true}}
+3. La URL es correcta');
   }
 }
 
